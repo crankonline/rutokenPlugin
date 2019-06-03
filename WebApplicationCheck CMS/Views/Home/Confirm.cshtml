@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Confirmation";
+}
+<h2>@ViewBag.Title.</h2>
+
+@if (ViewBag.Error == null)
+{
+    <p>@ViewBag.Message</p>
+    <address>
+        <strong>Content:</strong>  @ViewBag.Content<br />
+        <strong>Certificate:</strong> @ViewBag.Certificate<br />
+        <strong>TimeStamp:</strong> @ViewBag.TimeStamp
+    </address>
+}
+else
+{
+    <div class="alert alert-danger">
+        <strong>Warning!</strong> @ViewBag.Error
+    </div>
+}

@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<div class="jumbotron">
+    <h1>РуТокен Пдагин</h1>
+    <p class="lead">Демонстрационный пример по использованию РуТокен Плагин</p>
+    <p>Scripts/rutoken/dependencies.js - зависимости при работе с плагином</p>
+    <p>Scripts/rutoken/PluginManager.js - интерфейс для работы с плагином</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Для начала РуТокен</h2>
+        <p>
+            Подключите устройство РуТокен к устройству.
+        </p>
+        <form onsubmit="return false">
+            <div class="form-group">
+                <label for="sel1">Select Token:</label>
+                <select class="form-control" id="tokenlist">
+                    <option value="-1">подключите устройство</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="pincode">Пин-код:</label>
+                <input type="password" class="form-control" id="pincode" maxlength="8 minlenght="6" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Текст подписываемого сообщения:</label>
+                <textarea class="form-control" id="message" type="text" required></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="form-control" value="Подписать" id="sign-btn">
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h2>CMS на сервер</h2>
+
+        <form action="/Home/Confirm" method="post">
+            <div class="form-group">
+                <textarea class="form-control" id="cms" name="cms" type="text" required value=""></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="form-control" value="Отправить">
+            </div>
+        </form>
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    //Использование интерфейса с promise
+    window.onload = function () {
+        var pluginManager = new PluginManager(),
+            sltTokenList = document.getElementById("tokenlist"),
+            pincode = document.getElementById("pincode"),
+            cms = document.getElementById("cms"),
+            data = document.getElementById("message"),
+            signBtn = $('#sign-btn'),
+            watches;
+
+        var TokenlistLoader = function () {
+            var createOpt = function (id, name) {
+                var option = document.createElement("option");
+                option.value = id;
+                option.innerHTML = name + (id == -1 ? "" : "#" + id);
+                sltTokenList.appendChild(option);
+            };
+
+            pluginManager.getTokenList()
+                .then(function (vals) {
+                    var opt;
+                    while (opt = sltTokenList.firstChild) {
+                        sltTokenList.removeChild(opt);
+                    }
+                    if (vals.length) {
+                        clearTimeout(watches);
+                        for (i = 0; i < vals.length; i++) {
+                            createOpt(vals[i].id, vals[i].name);
+                        }
+                    } else {
+                        createOpt(-1, "подключите устройство");
+                        watches = setTimeout(function () {
+                            TokenlistLoader();
+                        }, 1000);
+                    }
+                });
+        }
+
+        var Login = function () {
+            var token = sltTokenList.value,
+                pin = pincode.value;
+            pluginManager.login(+token, pin)
+                .then(function (auth) {
+                    console.log(auth);
+                    Sign();
+                })
+                .catch(function (error) {
+                    var message;
+                    if (!isNaN(error.message))
+                        message = pluginManager.getErrorMessage(+error.message)
+                    else
+                        message = error.message;
+                    console.log({ content: message });
+                    alert(message);
+                });
+        }
+
+        var Sign = function () {
+            pluginManager.sign(0, data.value, pincode.value)
+                .then(function (signs) {
+                    console.log(signs);
+                    cms.value = signs;
+                })
+                .catch(function (error) {
+                    message = error.message;
+                    console.log({ content: message });
+                    alert(message);
+                });
+        }
+
+        signBtn.click(Login);
+
+        TokenlistLoader();
+    }
+</script>
