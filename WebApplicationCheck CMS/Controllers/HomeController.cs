@@ -63,7 +63,6 @@ namespace WebApplicationCheck_CMS.Controllers
                 ViewBag.Content = Encoding.UTF8.GetString(contentInfo.Content);
                 ViewBag.Certificate = certificates[0].Subject;
                 ViewBag.TimeStamp = timestamp;
-                //ViewBag.Error = null;
                 return View();
             }
             catch (Exception ex)

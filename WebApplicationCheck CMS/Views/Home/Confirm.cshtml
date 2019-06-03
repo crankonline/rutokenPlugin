@@ -5,12 +5,13 @@
 
 @if (ViewBag.Error == null)
 {
+<address>
+    <strong>Certificate:</strong> @ViewBag.Certificate<br />
+    <strong>TimeStamp:</strong> @ViewBag.TimeStamp<br />
+    <strong>Content:</strong>  @ViewBag.Content
+</address>
+
     <p>@ViewBag.Message</p>
-    <address>
-        <strong>Content:</strong>  @ViewBag.Content<br />
-        <strong>Certificate:</strong> @ViewBag.Certificate<br />
-        <strong>TimeStamp:</strong> @ViewBag.TimeStamp
-    </address>
 }
 else
 {
